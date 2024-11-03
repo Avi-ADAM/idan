@@ -154,7 +154,7 @@ li{
     z-index: 2;
     overflow: hidden;
     padding: 8px;
-    
+    margin: 0 auto; 
 }
 .rainbow-btn:before {
     content: "";
