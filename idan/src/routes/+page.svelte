@@ -1,23 +1,28 @@
 <script>
-    import { onMount } from 'svelte';
+	import { quintOut } from "svelte/easing";
+	import { fly } from "svelte/transition";
+
     let name = '';
     let phone = '';
     let message = '';
+    let showModal = false;
   
     const sendToTelegram = async () => {
-      const telegramBotToken = 'YOUR_TELEGRAM_BOT_TOKEN';
-      const chatId = 'YOUR_CHAT_ID';
+      if (!name || !phone ) {
+        alert('נא למלא את כל השדות');
+      }
       const text = `שם: ${name}\nטלפון: ${phone}\nהודעה: ${message}`;
   
-      const response = await fetch(`https://api.telegram.org/bot${telegramBotToken}/sendMessage`, {
+      const response = await fetch(`https://api.telegram.org/bot${import.meta.env.VITE_BOT_ID}/sendMessage`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          chat_id: chatId,
+          chat_id: import.meta.env.VITE_CHAT_ID,
           text
-        })
+      })
       });
   
+
       if (response.ok) {
         alert('ההודעה נשלחה בהצלחה!');
       } else {
@@ -27,6 +32,10 @@
   
     const whatsappUrl = `https://wa.me/972522054592?text=שלום, אני מעוניין בשירותי הובלה.`;
     let showForm = false;
+
+    const toggleModal = () => {
+        showModal = !showModal;
+    };
   </script>
   
   <style>
@@ -204,6 +213,38 @@ li{
   margin-bottom: 20px;
   border-radius: 10px; /* אם תרצה פינות מעוגלות */
 }
+
+.modal {
+  z-index: 9999;
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: rgba(0, 0, 0, 0.5);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    transition: opacity 0.3s ease;
+}
+
+
+.modal-content {
+    background-color: #254EA5; /* גוון כחול כהה */
+    padding: 30px;
+    border-radius: 8px;
+    box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.2);
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;    
+}
+label{
+  font-size: 15px;
+  color: #FFD700;
+  font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+}
+
   </style>
   <div class="body">
 
@@ -242,23 +283,26 @@ li{
     </ul>
 </span>
   </div>
-  {#if showForm}
-  <div class="form-container">
-    <button class="text-white p-2 bg-gold rounded-full" on:click={()=>showForm = !showForm}>סגירה</button>
-    <label>שם</label>
-    <input type="text" bind:value={name} placeholder=" שם מלא" />
-  
-    <label>טלפון</label>
-    <input type="tel" bind:value={phone} placeholder=" מספר טלפון" />
-  
-    <label>הודעה</label>
-    <textarea bind:value={message} placeholder=" הודעה"></textarea>
-  
-    <button class="button bg-transparent" on:click={sendToTelegram}>צרו איתי קשר</button>
-  </div>
-  {/if}
+
   <a class="whatsapp-button" href={whatsappUrl} target="_blank">צרו קשר ב-WhatsApp</a>
-  {#if !showForm}
-  <button class="whatsapp-button" on:click={()=>showForm = !showForm}>השארת פרטים</button>
+  {#if !showModal}
+  <button class="whatsapp-button" onclick={toggleModal}>השארת פרטים</button>
   {/if}
  </div>
+ {#if showModal}
+ <div class="modal flex flex-row items-center justify-center p-5" transition:fly="{{delay: 250, duration: 300, x: 100, y: 500, opacity: 0.5, easing: quintOut}}">
+       <div class="modal-content">
+  <button class="text-white p-2 bg-gold rounded-full" onclick={toggleModal}>סגירה</button>
+         <label>שם</label>
+         <input type="text" class="text-pink-700" bind:value={name} placeholder=" שם מלא" />
+     
+         <label>טלפון</label>
+         <input type="tel" bind:value={phone} placeholder=" מספר טלפון" />
+     
+         <label>הודעה</label>
+         <textarea bind:value={message} placeholder=" הודעה"></textarea>
+     
+         <button class="button bg-transparent" onclick={sendToTelegram}>צרו איתי קשר</button>
+        </div>
+        </div>
+ {/if}
