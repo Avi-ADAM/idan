@@ -2,10 +2,10 @@
 	import { quintOut } from "svelte/easing";
 	import { fly } from "svelte/transition";
 
-    let name = '';
-    let phone = '';
-    let message = '';
-    let showModal = false;
+    let name = $state('');
+    let phone = $state('');
+    let message = $state('');
+    let showModal = $state(false);
   
     const sendToTelegram = async () => {
       if (!name || !phone ) {
@@ -25,6 +25,10 @@
 
       if (response.ok) {
         alert('ההודעה נשלחה בהצלחה!');
+        showModal = false;
+        name = '';
+        phone = '';
+        message = '';
       } else {
         alert('שגיאה בשליחת ההודעה.');
       }
